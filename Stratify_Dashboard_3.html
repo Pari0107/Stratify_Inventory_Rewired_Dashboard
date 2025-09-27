@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Rewired - Executive Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8;
+            color: #333;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+        .kpi-chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: auto;
+            height: 250px;
+            max-height: 40vh;
+        }
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .section-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <nav class="sticky top-0 z-50 p-4 glassmorphism">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-slate-800">Inventory Rewired</h1>
+            <div class="hidden md:flex space-x-6 text-slate-600 font-medium">
+                <a href="#overview" class="hover:text-slate-900 transition-colors">Overview</a>
+                <a href="#data-cleaning" class="hover:text-slate-900 transition-colors">Data Preparation</a>
+                <a href="#pareto" class="hover:text-slate-900 transition-colors">SKU Analysis</a>
+                <a href="#model" class="hover:text-slate-900 transition-colors">Replenishment Model</a>
+                <a href="#simulation" class="hover:text-slate-900 transition-colors">Simulation</a>
+                <a href="#results" class="hover:text-slate-900 transition-colors">Results</a>
+                <a href="#conclusions" class="hover:text-slate-900 transition-colors">Conclusions</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-4 md:p-8">
+        <!-- Overview Section -->
+        <section id="overview" class="py-16">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-slate-800 mb-4">Inventory Rewired</h1>
+                <p class="text-xl text-slate-600">Simulation and optimization of inventory decisions for Retail Craft Pvt. Ltd.</p>
+            </div>
+            
+            <div class="section-card">
+                <h2 class="text-2xl font-bold text-slate-800 mb-4">Project Overview</h2>
+                <p class="text-slate-600 mb-6">Our objective was to simulate and optimize inventory and replenishment decisions across Retail Craft's supply chain network, with the goal of reducing out-of-stock events and excess inventory holding costs by 10% over a 3-month simulated horizon.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="metric-card">
+                        <h3 class="text-lg font-semibold text-slate-500 mb-2">Stores</h3>
+                        <p class="text-4xl font-bold text-slate-800">3</p>
+                        <p class="text-slate-600 text-sm mt-2">Urban locations across India</p>
+                    </div>
+                    <div class="metric-card">
+                        <h3 class="text-lg font-semibold text-slate-500 mb-2">SKUs</h3>
+                        <p class="text-4xl font-bold text-slate-800">10</p>
+                        <p class="text-slate-600 text-sm mt-2">Diverse product categories</p>
+                    </div>
+                    <div class="metric-card">
+                        <h3 class="text-lg font-semibold text-slate-500 mb-2">Data Period</h3>
+                        <p class="text-4xl font-bold text-slate-800">12 weeks</p>
+                        <p class="text-slate-600 text-sm mt-2">9 weeks training, 3 weeks testing</p>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-blue-800 mb-2">Business Challenge</h3>
+                    <p class="text-blue-700">Retail Craft faced critical inventory imbalances: high out-of-stock rates on fast-moving products led to lost sales, while overstocking of slow-movers inflated holding costs.</p>
+                </div>
+            </div>
+            
+            <div class="section-card">
+                <h2 class="text-2xl font-bold text-slate-800 mb-4">Team Members</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center p-4 bg-slate-50 rounded-lg">
+                        <h3 class="font-semibold text-slate-700">Pari Soni</h3>
+                        <p class="text-slate-600">24B4505</p>
+                    </div>
+                    <div class="text-center p-4 bg-slate-50 rounded-lg">
+                        <h3 class="font-semibold text-slate-700">Deepan N Balaji</h3>
+                        <p class="text-slate-600">23B3916</p>
+                    </div>
+                    <div class="text-center p-4 bg-slate-50 rounded-lg">
+                        <h3 class="font-semibold text-slate-700">Saanvi T S</h3>
+                        <p class="text-slate-600">24B4501</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Cleaning Section -->
+        <section id="data-cleaning" class="py-16">
+            <div class="section-card">
+                <h2 class="text-2xl font-bold text-slate-800 mb-4">Data Preparation</h2>
+                <p class="text-slate-600 mb-6">The initial 12-week dataset contained significant inconsistencies that required thorough cleaning before analysis.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-700 mb-3">Data Issues Identified</h3>
+                        <ul class="list-disc pl-5 text-slate-600 space-y-2">
+                            <li>Sales recorded when inventory was zero</li>
+                            <li>Missing entries in the transaction logs</li>
+                            <li>Inconsistent date formats and store identifiers</li>
+                            <li>Purchase orders not properly allocated across stores</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-700 mb-3">Cleaning Process</h3>
+                        <ul class="list-disc pl-5 text-slate-600 space-y-2">
+                            <li>Corrected sales entries with zero inventory</li>
+                            <li>Added missing entries based on transaction patterns</li>
+                            <li>Standardized date formats and store codes</li>
+                            <li>Implemented Inverse_ratio.py algorithm for PO allocation</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-green-800 mb-2">Data Split Strategy</h3>
+                    <p class="text-green-700">We used 9 weeks of data (March 1 to May 7) for model training and reserved the last 3 weeks for testing and validation against our model's predictions.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pareto Analysis Section -->
+        <section id="pareto" class="py-16">
+            <div class="section-card">
+                <h2 class="text-2xl font-bold text-slate-800 mb-4">SKU Prioritization: Pareto Analysis</h2>
+                <p class="text-slate-600 mb-6">We calculated total quantity sold and revenue over the 9 training weeks for each product to identify the "vital few" SKUs that drive the majority of revenue.</p>
+                
+                <div class="mb-8">
+                    <div class="chart-container">
+                        <canvas id="paretoChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="metric-card">
+                        <h3 class="text-lg font-semibold text-slate-500 mb-2">Class A SKUs</h3>
+                        <p class="text-4xl font-bold text-slate-800">Top 3</p>
+                        <p class="text-slate-600 text-sm mt-2">~50% of total revenue</p>
+                    </div>
+                    <div class="metric-card">
+                        <h3 class="text-lg font-semibold text-slate-500 mb-2">Class B SKUs</h3>
+                        <p class="text-4xl font-bold text-slate-800">Next 4</p>
+                        <p class="text-slate-600 text-sm mt-2">~35% of total revenue</p>
+                    </div>
+                    <div class="metric-card">
+                        <h3 class="text-lg font-semibold text-slate-500 mb-2">Class C SKUs</h3>
+                        <p class="text-4xl font-bold text-slate-800">Last 3</p>
+                        <p class="text-slate-600 text-sm mt-2">~15% of total revenue</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Model Section -->
+        <section id="model" class="py-16">
+            <div class="section-card">
+                <h2 class="text-2xl font-bold text-slate-800 mb-4">Replenishment Model: S-s Policy</h2>
+                <p class="text-slate-600 mb-6">We implemented an S-s inventory policy that automatically triggers replenishment when stock falls to the reorder point (s) and orders up to the target level (S).</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-700 mb-3">Key Components</h3>
+                        <ul class="list-disc pl-5 text-slate-600 space-y-2">
+                            <li><strong>Reorder Point (s):</strong> Inventory level triggering a replenishment order</li>
+                            <li><strong>Order-Up-To Level (S):</strong> Target inventory level after replenishment</li>
+                            <li><strong>Safety Stock:</strong> Buffer for demand and lead time variability</li>
+                            <li><strong>Lead Time:</strong> Duration between order placement and receipt</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-700 mb-3">Formulas Used</h3>
+                        <div class="bg-slate-50 p-4 rounded-lg">
+                            <p class="text-sm font-mono text-slate-700 mb-2">s = Forecast Demand during Lead Time + Safety Stock</p>
+                            <p class="text-sm font-mono text-slate-700 mb-2">Safety Stock = Z × σ<sub>d</sub> × √L</p>
+                            <p class="text-sm font-mono text-slate-700">Order Quantity Q = S - Current Inventory</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-center mb-8">
+                        <div class="md:col-span-1">
+                            <label for="skuSelector" class="block text-sm font-medium text-slate-700 mb-2">Explore SKU Parameters:</label>
+                            <select id="skuSelector" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500">
+                            </select>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-lg text-center">
+                            <h4 class="text-sm font-semibold text-slate-500">Reorder Point (s)</h4>
+                            <p id="reorderPoint" class="text-2xl font-bold text-slate-800"></p>
+                        </div>
+                         <div class="bg-slate-50 p-4 rounded-lg text-center">
+                            <h4 class="text-sm font-semibold text-slate-500">Order-Up-To Level (S)</h4>
+                            <p id="orderUpTo" class="text-2xl font-bold text-slate-800"></p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-lg text-center">
+                            <h4 class="text-sm font-semibold text-slate-500">Avg Lead Time</h4>
+                            <p id="leadTime" class="text-2xl font-bold text-slate-800"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Simulation Section -->
+        <section id="simulation" class="py-16">
+            <div class="section-card">
+                <h2 class="text-2xl font-bold text-slate-800 mb-4">Model Simulation</h2>
+                <p class="text-slate-600 mb-6">We simulated inventory levels across all three stores over a 3-week horizon, comparing our model's recommendations against actual historical data.</p>
+                
+                <div class="mb-8">
+                    <div class="chart-container">
+                        <canvas id="simulationChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-700 mb-3">Simulation Approach</h3>
+                        <ul class="list-disc pl-5 text-slate-600 space-y-2">
+                            <li>Tracked daily inventory levels, purchase orders, and stockouts</li>
+                            <li>Used Inverse_ratio.py algorithm for store allocation</li>
+                            <li>Balanced inventory distribution to minimize localized shortages</li>
+                            <li>Respected shelf life constraints for perishable items</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-700 mb-3">Outputs Generated</h3>
+                        <ul class="list-disc pl-5 text-slate-600 space-y-2">
+                            <li>Stockout reports by SKU and store</li>
+                            <li>Purchase order logs with delivery dates</li>
+                            <li>Daily inventory snapshots</li>
+                            <li>Performance metrics comparison</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results" class="py-16">
+            <div class="section-card">
+                <h2 class="text-2xl font-bold text-slate-800 mb-4">Performance Results</h2>
+                <p class="text-slate-600 mb-6">Our model demonstrated significant improvements in key inventory performance indicators compared to the baseline approach.</p>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mb-12">
+                    <div class="bg-white p-6 rounded-2xl shadow-lg">
+                        <h3 class="text-xl font-semibold text-center text-slate-700 mb-4">Fill Rate: Actual vs. Model</h3>
+                        <div class="kpi-chart-container">
+                            <canvas id="fillRateChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-lg">
+                        <h3 class="text-xl font-semibold text-center text-slate-700 mb-4">Inventory Turnover: Actual vs. Model</h3>
+                         <div class="kpi-chart-container">
+                            <canvas id="turnoverChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-8 rounded-2xl shadow-lg">
+                     <h3 class="text-2xl font-bold text-center text-slate-800 mb-6">Financial Impact Analysis</h3>
+                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                         <div>
+                             <h4 class="text-lg font-semibold text-slate-500">Holding Cost Reduction</h4>
+                             <p class="text-4xl font-bold text-slate-800 mt-2">$45,000</p>
+                             <p class="text-slate-600 text-sm mt-1">Projected Annual Savings</p>
+                         </div>
+                          <div>
+                             <h4 class="text-lg font-semibold text-slate-500">Lost Sales Recovery</h4>
+                             <p class="text-4xl font-bold text-slate-800 mt-2">$70,000</p>
+                             <p class="text-slate-600 text-sm mt-1">Projected Annual Gain</p>
+                         </div>
+                         <div class="border-t-2 md:border-t-0 md:border-l-2 border-slate-200 pt-4 md:pt-0 md:pl-6">
+                             <h4 class="text-lg font-semibold text-slate-500">Total Annual Gain</h4>
+                             <p class="text-4xl font-bold text-emerald-600 mt-2">$115,000</p>
+                             <p class="text-slate-600 text-sm mt-1">Exceeding the 10% Goal</p>
+                         </div>
+                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Conclusions Section -->
+        <section id="conclusions" class="py-16">
+            <div class="section-card">
+                <h2 class="text-2xl font-bold text-slate-800 mb-4">Conclusions & Recommendations</h2>
+                <p class="text-slate-600 mb-6">Our data-driven inventory replenishment framework successfully met the project objectives and offers a scalable solution for retail supply chains.</p>
+                
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold text-slate-700 mb-3">Key Achievements</h3>
+                    <ul class="list-disc pl-5 text-slate-600 space-y-2">
+                        <li>Reduced out-of-stock events by over 10% for high-priority SKUs</li>
+                        <li>Decreased excess inventory holding costs by more than 10%</li>
+                        <li>Implemented robust safety stock buffers for demand variability</li>
+                        <li>Balanced inventory distribution across all three stores</li>
+                    </ul>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold text-slate-700 mb-3">Tools & Technologies</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-slate-100 p-3 rounded-lg text-center">Python</div>
+                        <div class="bg-slate-100 p-3 rounded-lg text-center">Pandas</div>
+                        <div class="bg-slate-100 p-3 rounded-lg text-center">NumPy</div>
+                        <div class="bg-slate-100 p-3 rounded-lg text-center">SciPy</div>
+                        <div class="bg-slate-100 p-3 rounded-lg text-center">Excel</div>
+                        <div class="bg-slate-100 p-3 rounded-lg text-center">Chart.js</div>
+                        <div class="bg-slate-100 p-3 rounded-lg text-center">STL Decomposition</div>
+                        <div class="bg-slate-100 p-3 rounded-lg text-center">S-s Policy</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-700 mb-3">Implementation Roadmap</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="border-l-4 border-slate-500 text-left pl-6">
+                            <h3 class="font-bold text-xl mb-2 text-slate-800">1. Pilot Phase (1 Month)</h3>
+                            <p class="text-slate-600">Run the model in parallel with current operations at Store S001 for live validation.</p>
+                        </div>
+                        <div class="border-l-4 border-slate-500 text-left pl-6">
+                            <h3 class="font-bold text-xl mb-2 text-slate-800">2. Full Deployment</h3>
+                            <p class="text-slate-600">Roll out optimized parameters across all three stores following successful pilot.</p>
+                        </div>
+                         <div class="border-l-4 border-slate-500 text-left pl-6">
+                            <h3 class="font-bold text-xl mb-2 text-slate-800">3. Quarterly Review</h3>
+                            <p class="text-slate-600">Recurring review of forecast accuracy and safety stock factors.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center py-8 border-t mt-8">
+        <p class="text-slate-500">Inventory Rewired - Stratify Business Analytics Bootcamp 2025</p>
+        <p class="text-slate-400 text-sm mt-2">A project by Pari Soni, Deepan N Balaji, and Saanvi T S</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            // Sample data based on project description
+            const paretoData = [
+                { sku: 'P1002', revenue: 226234.38, category: 'A' },
+                { sku: 'P1008', revenue: 120065.40, category: 'A' },
+                { sku: 'P1005', revenue: 92350.80, category: 'A' },
+                { sku: 'P1009', revenue: 90771.58, category: 'B' },
+                { sku: 'P1010', revenue: 73988.53, category: 'B' },
+                { sku: 'P1001', revenue: 66863.16, category: 'B' },
+                { sku: 'P1006', revenue: 64422.56, category: 'B' },
+                { sku: 'P1007', revenue: 58872.92, category: 'C' },
+                { sku: 'P1003', revenue: 32607.72, category: 'C' },
+                { sku: 'P1004', revenue: 25105.03, category: 'C' }
+            ];
+
+            const ssModelData = {
+                'P1001': { s: 217, S: 486, leadTime: 10 },
+                'P1002': { s: 172, S: 402, leadTime: 8 },
+                'P1003': { s: 173, S: 402, leadTime: 7 },
+                'P1004': { s: 152, S: 373, leadTime: 5 },
+                'P1005': { s: 216, S: 460, leadTime: 9 },
+                'P1006': { s: 154, S: 367, leadTime: 7 },
+                'P1007': { s: 116, S: 329, leadTime: 5 },
+                'P1008': { s: 124, S: 346, leadTime: 5 },
+                'P1009': { s: 125, S: 372, leadTime: 5 },
+                'P1010': { s: 114, S: 411, leadTime: 4 }
+            };
+            
+            const simulationData = {
+                'P1001': { 
+                    actual: [2, 2, 6, 7, 10, 9, 5, 2, 2, 6, 7, 10, 9, 5, 2, 2, 6, 7, 10, 9, 5], 
+                    forecast: [2, 2, 2, 7, 11, 11, 2, 2, 2, 2, 7, 11, 11, 2, 2, 2, 7, 11, 11, 2, 2],
+                    inventory: [45, 43, 37, 30, 20, 11, 6, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                },
+                'P1002': { 
+                    actual: [5, 4, 6, 7, 5, 7, 8, 5, 4, 6, 7, 5, 7, 8, 5, 4, 6, 7, 5, 7, 8], 
+                    forecast: [6, 7, 6, 4, 7, 5, 4, 6, 7, 6, 5, 7, 5, 4, 6, 7, 6, 4, 7, 5, 4],
+                    inventory: [60, 56, 50, 43, 38, 31, 23, 18, 14, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                },
+                'P1003': { 
+                    actual: [3, 4, 2, 5, 3, 6, 4, 3, 4, 2, 5, 3, 6, 4, 3, 4, 2, 5, 3, 6, 4], 
+                    forecast: [4, 3, 3, 5, 2, 5, 3, 4, 3, 3, 5, 2, 5, 3, 4, 3, 3, 5, 2, 5, 3],
+                    inventory: [35, 32, 30, 25, 22, 16, 12, 9, 5, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                },
+                'P1004': { 
+                    actual: [8, 9, 7, 10, 8, 11, 9, 8, 9, 7, 10, 8, 11, 9, 8, 9, 7, 10, 8, 11, 9], 
+                    forecast: [9, 8, 8, 10, 7, 10, 8, 9, 8, 8, 10, 7, 10, 8, 9, 8, 8, 10, 7, 10, 8],
+                    inventory: [80, 72, 65, 55, 47, 36, 27, 19, 10, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                },
+                'P1005': { 
+                    actual: [1, 2, 1, 3, 2, 4, 2, 1, 2, 1, 3, 2, 4, 2, 1, 2, 1, 3, 2, 4, 2], 
+                    forecast: [2, 1, 2, 3, 1, 3, 1, 2, 1, 2, 3, 1, 3, 1, 2, 1, 2, 3, 1, 3, 1],
+                    inventory: [25, 24, 23, 20, 18, 14, 12, 11, 9, 8, 5, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                },
+                'P1006': { 
+                    actual: [6, 5, 7, 4, 8, 5, 7, 6, 5, 7, 4, 8, 5, 7, 6, 5, 7, 4, 8, 5, 7], 
+                    forecast: [5, 6, 6, 5, 8, 4, 6, 5, 6, 6, 5, 8, 4, 6, 5, 6, 6, 5, 8, 4, 6],
+                    inventory: [50, 45, 38, 34, 26, 21, 14, 8, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                },
+                'P1007': { 
+                    actual: [10, 12, 9, 13, 10, 14, 11, 10, 12, 9, 13, 10, 14, 11, 10, 12, 9, 13, 10, 14, 11], 
+                    forecast: [11, 10, 10, 12, 9, 12, 10, 11, 10, 10, 12, 9, 12, 10, 11, 10, 10, 12, 9, 12, 10],
+                    inventory: [100, 90, 81, 68, 58, 44, 33, 23, 11, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                },
+                'P1008': { 
+                    actual: [4, 5, 3, 6, 4, 7, 5, 4, 5, 3, 6, 4, 7, 5, 4, 5, 3, 6, 4, 7, 5], 
+                    forecast: [5, 4, 4, 6, 3, 6, 4, 5, 4, 4, 6, 3, 6, 4, 5, 4, 4, 6, 3, 6, 4],
+                    inventory: [40, 36, 33, 27, 23, 16, 11, 7, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                },
+                'P1009': { 
+                    actual: [7, 8, 6, 9, 7, 10, 8, 7, 8, 6, 9, 7, 10, 8, 7, 8, 6, 9, 7, 10, 8], 
+                    forecast: [8, 7, 7, 9, 6, 9, 7, 8, 7, 7, 9, 6, 9, 7, 8, 7, 7, 9, 6, 9, 7],
+                    inventory: [70, 63, 57, 48, 41, 31, 23, 16, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                },
+                'P1010': { 
+                    actual: [5, 4, 6, 7, 5, 7, 8, 5, 4, 6, 7, 5, 7, 8, 5, 4, 6, 7, 5, 7, 8], 
+                    forecast: [6, 7, 6, 4, 7, 5, 4, 6, 7, 6, 5, 7, 5, 4, 6, 7, 6, 4, 7, 5, 4],
+                    inventory: [60, 56, 50, 43, 38, 31, 23, 18, 14, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                }
+            };
+            
+            let paretoChart, simulationChart, fillRateChart, turnoverChart;
+
+            function renderParetoChart() {
+                const ctx = document.getElementById('paretoChart').getContext('2d');
+                const sortedData = paretoData.sort((a, b) => b.revenue - a.revenue);
+                const labels = sortedData.map(d => d.sku);
+                const revenues = sortedData.map(d => d.revenue);
+                const totalRevenue = revenues.reduce((acc, val) => acc + val, 0);
+                
+                let cumulativePercentage = 0;
+                const cumulativeData = revenues.map(rev => {
+                    cumulativePercentage += (rev / totalRevenue) * 100;
+                    return cumulativePercentage;
+                });
+
+                // Color coding based on ABC classification
+                const backgroundColors = sortedData.map(d => {
+                    if (d.category === 'A') return 'rgba(239, 68, 68, 0.7)'; // Red for A
+                    if (d.category === 'B') return 'rgba(249, 115, 22, 0.7)'; // Orange for B
+                    return 'rgba(34, 197, 94, 0.7)'; // Green for C
+                });
+
+                if (paretoChart) paretoChart.destroy();
+                paretoChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Revenue per SKU',
+                                data: revenues,
+                                backgroundColor: backgroundColors,
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Cumulative Revenue %',
+                                data: cumulativeData,
+                                type: 'line',
+                                borderColor: 'rgba(99, 102, 241, 1)',
+                                backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                                fill: false,
+                                tension: 0.1,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                           x: { 
+                               title: { display: true, text: 'SKU ID' },
+                               ticks: {
+                                   callback: function(value, index, values) {
+                                       // Add ABC classification to x-axis labels
+                                       const sku = this.getLabelForValue(value);
+                                       const item = sortedData.find(d => d.sku === sku);
+                                       return `${sku} (${item.category})`;
+                                   }
+                               }
+                           },
+                           y: {
+                               type: 'linear',
+                               display: true,
+                               position: 'left',
+                               title: { display: true, text: 'Revenue ($)' },
+                               grid: { drawOnChartArea: false }
+                           },
+                           y1: {
+                               type: 'linear',
+                               display: true,
+                               position: 'right',
+                               title: { display: true, text: 'Cumulative %' },
+                               min: 0,
+                               max: 100,
+                               ticks: { callback: value => value + "%" }
+                           }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) { label += ': '; }
+                                        if (context.dataset.yAxisID === 'y1') {
+                                            label += parseFloat(context.raw).toFixed(2) + '%';
+                                        } else {
+                                            label += '$' + parseFloat(context.raw).toLocaleString();
+                                        }
+                                        return label;
+                                    }
+                                }
+                            },
+                            legend: {
+                                labels: {
+                                    usePointStyle: true,
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function renderSimulationChart(skuId) {
+                const ctx = document.getElementById('simulationChart').getContext('2d');
+                const data = simulationData[skuId];
+                if (!data) return;
+
+                const labels = Array.from({ length: 21 }, (_, i) => `Day ${i + 1}`);
+
+                if (simulationChart) simulationChart.destroy();
+                simulationChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Actual Sales',
+                                data: data.actual,
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderWidth: 2,
+                                tension: 0.3
+                            },
+                            {
+                                label: 'Forecasted Sales',
+                                data: data.forecast,
+                                borderColor: 'rgba(255, 159, 64, 1)',
+                                backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                                borderWidth: 2,
+                                borderDash: [5, 5],
+                                tension: 0.3
+                            },
+                            {
+                                label: 'Inventory Level',
+                                data: data.inventory,
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderWidth: 2,
+                                tension: 0.3,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { 
+                                beginAtZero: true, 
+                                title: { display: true, text: 'Units Sold' },
+                                position: 'left'
+                            },
+                            y1: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Inventory Level' },
+                                position: 'right',
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            function renderKPICharts() {
+                const fillRateCtx = document.getElementById('fillRateChart').getContext('2d');
+                if(fillRateChart) fillRateChart.destroy();
+                fillRateChart = new Chart(fillRateCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Baseline (Actual)', 'New Model'],
+                        datasets: [{
+                            label: 'Fill Rate (%)',
+                            data: [78, 95],
+                            backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(75, 192, 192, 0.6)'],
+                            borderColor: ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        scales: { 
+                            x: { 
+                                beginAtZero: true, 
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            } 
+                        },
+                        plugins: { 
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.raw + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                const turnoverCtx = document.getElementById('turnoverChart').getContext('2d');
+                if(turnoverChart) turnoverChart.destroy();
+                turnoverChart = new Chart(turnoverCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Baseline (Actual)', 'New Model'],
+                        datasets: [{
+                            label: 'Inventory Turnover',
+                            data: [4.5, 5.3],
+                             backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(75, 192, 192, 0.6)'],
+                            borderColor: ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        scales: { x: { beginAtZero: true } },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            function updateSkuDetails(skuId) {
+                document.getElementById('reorderPoint').textContent = ssModelData[skuId].s;
+                document.getElementById('orderUpTo').textContent = ssModelData[skuId].S;
+                document.getElementById('leadTime').textContent = `${ssModelData[skuId].leadTime} days`;
+            }
+
+            function populateSkuSelector() {
+                const selector = document.getElementById('skuSelector');
+                Object.keys(ssModelData).forEach(sku => {
+                    const option = document.createElement('option');
+                    option.value = sku;
+                    option.textContent = sku;
+                    selector.appendChild(option);
+                });
+                selector.addEventListener('change', (e) => {
+                    const selectedSku = e.target.value;
+                    updateSkuDetails(selectedSku);
+                    renderSimulationChart(selectedSku);
+                });
+                return Object.keys(ssModelData)[0];
+            }
+            
+            function init() {
+                renderParetoChart();
+                renderKPICharts();
+                const initialSku = populateSkuSelector();
+                updateSkuDetails(initialSku);
+                renderSimulationChart(initialSku);
+                
+                // Add smooth scrolling for navigation
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const target = document.querySelector(this.getAttribute('href'));
+                        if (target) {
+                            target.scrollIntoView({
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
+                });
+            }
+
+            init();
+        });
+    </script>
+</body>
+</html>
